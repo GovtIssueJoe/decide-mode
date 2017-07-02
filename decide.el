@@ -528,6 +528,7 @@
   (let* ((s (decide-get-from-last-ws))
          (dice-spec (decide-make-dice-spec s))
          (range-spec (decide-parse-range s))
+         (table-name (car (assoc-string s decide-tables)))
          )
     (cond (dice-spec (progn
                        (delete-backward-char (length s))
@@ -535,6 +536,12 @@
           (range-spec (progn
                         (delete-backward-char (length s))
                         (decide-random-range s)))
+          (table-name (progn
+                        (delete-backward-char (length s))
+                        (decide-from-table table-name)))
+          ((string-match "\\([a-zA-Z0-9]+,\\)+[a-zA-Z0-9]+" s)
+           (progn (delete-backward-char (length s))
+                  (decide-random-choice s)))
           (t (decide-for-me-normal)))))
 
 (defun decide-question-return ()
