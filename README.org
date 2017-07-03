@@ -36,6 +36,7 @@ the example text below.
 - Roll dice with modifier: [2d6+1] -> (5 3) +1 = 9 *(? d 2 d 6 + 1 RET)*
 - Roll more unusual dice, like FATE/Fudge dice: [4dF] -> (- 0 + +) = 1 *(? F)*
 - There are several special shortcuts for dice to save you some typing: [1d20] -> = 20 *(? 2 0)*
+- Prefix argument sets the number of dice to roll: [3d20] -> (7 9 6) = 22 *(M-3 ? 2 0)*
 - Draw a cards: [<card>] -> 2 Clubs *(? t c a r d RET)*
 - Pick a number from a range: [1-10] -> 5 *(? r 1 - 1 0 RET)*
 - Pick a number from a range, but lower numbers more likely: [1-10 (lowest of 2)] -> 4 *(? r 1 < < 1 0 RET)*

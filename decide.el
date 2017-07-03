@@ -66,6 +66,9 @@
 ;; ? a -> 1dA
 ;; ? A -> 2dA
 ;;
+;; A prefix argument to any of the functions rolling dice will set
+;; the number of dice to roll, so M-2 ? 1 0 will roll 2d10.
+;;
 ;; To pick a random number in any range press ? r (decide-random-range),
 ;; then input range to get number from, in one of the following formats:
 ;; 3-17
@@ -450,66 +453,16 @@
    (apply 'decide-roll-dice-spec spec)
    "\n"))
 
-(defun decide-roll-fate ()
-  "Roll four Fate/Fudge dice."
-  (interactive)
-  (decide-roll-dice "4df"))
-
-(defun decide-roll-1dA ()
-  (interactive)
-  (decide-roll-dice "1dA"))
-
-(defun decide-roll-2dA ()
-  (interactive)
-  (decide-roll-dice "2dA"))
-
-(defun decide-roll-1d6 ()
-  (interactive)
-  (decide-roll-dice "1d6"))
-
-(defun decide-roll-2d6 ()
-  (interactive)
-  (decide-roll-dice "2d6"))
-
-(defun decide-roll-1d3 ()
-  (interactive)
-  (decide-roll-dice "1d3"))
-
-(defun decide-roll-1d4 ()
-  (interactive)
-  (decide-roll-dice "1d4"))
-
-(defun decide-roll-1d5 ()
-  (interactive)
-  (decide-roll-dice "1d5"))
-
-(defun decide-roll-1d7 ()
-  (interactive)
-  (decide-roll-dice "1d7"))
-
-(defun decide-roll-1d8 ()
-  (interactive)
-  (decide-roll-dice "1d8"))
-
-(defun decide-roll-1d9 ()
-  (interactive)
-  (decide-roll-dice "1d9"))
-
-(defun decide-roll-1d10 ()
-  (interactive)
-  (decide-roll-dice "1d10"))
-
-(defun decide-roll-1d12 ()
-  (interactive)
-  (decide-roll-dice "1d12"))
-
-(defun decide-roll-1d20 ()
-  (interactive)
-  (decide-roll-dice "1d20"))
-
-(defun decide-roll-1d100 ()
-  (interactive)
-  (decide-roll-dice "1d100"))
+(defmacro decide-roll-dice-fun (default-n faces)
+  "Create an interactive function that can be called to roll
+DEFAULT-N dice (or override with prefix-argument) with
+FACES (string) sides."
+  `(lambda (n) (interactive "P")
+     (decide-roll-dice (format "%dd%s"
+                               (if n
+                                   (abs (prefix-numeric-value n))
+                                 ,default-n)
+                               ,faces))))
 
 (defun decide-find-last-ws ()
   (save-excursion
@@ -554,21 +507,21 @@
 (define-key decide-mode-map (kbd "? -") 'decide-for-me-unlikely)
 
 (define-key decide-mode-map (kbd "? d") 'decide-roll-dice)
-(define-key decide-mode-map (kbd "? D") 'decide-roll-2d6)
-(define-key decide-mode-map (kbd "? 3") 'decide-roll-1d3)
-(define-key decide-mode-map (kbd "? 4") 'decide-roll-1d4)
-(define-key decide-mode-map (kbd "? 5") 'decide-roll-1d5)
-(define-key decide-mode-map (kbd "? 6") 'decide-roll-1d6)
-(define-key decide-mode-map (kbd "? 7") 'decide-roll-1d7)
-(define-key decide-mode-map (kbd "? 8") 'decide-roll-1d8)
-(define-key decide-mode-map (kbd "? 9") 'decide-roll-1d9)
-(define-key decide-mode-map (kbd "? 1 0") 'decide-roll-1d10)
-(define-key decide-mode-map (kbd "? 1 2") 'decide-roll-1d12)
-(define-key decide-mode-map (kbd "? 2 0") 'decide-roll-1d20)
-(define-key decide-mode-map (kbd "? %") 'decide-roll-1d100)
-(define-key decide-mode-map (kbd "? f") 'decide-roll-fate)
-(define-key decide-mode-map (kbd "? a") 'decide-roll-1dA)
-(define-key decide-mode-map (kbd "? A") 'decide-roll-2dA)
+(define-key decide-mode-map (kbd "? D") (decide-roll-dice-fun 2 "6"))
+(define-key decide-mode-map (kbd "? 3") (decide-roll-dice-fun 1 "3"))
+(define-key decide-mode-map (kbd "? 4") (decide-roll-dice-fun 1 "4"))
+(define-key decide-mode-map (kbd "? 5") (decide-roll-dice-fun 1 "5"))
+(define-key decide-mode-map (kbd "? 6") (decide-roll-dice-fun 1 "6"))
+(define-key decide-mode-map (kbd "? 7") (decide-roll-dice-fun 1 "7"))
+(define-key decide-mode-map (kbd "? 8") (decide-roll-dice-fun 1 "8"))
+(define-key decide-mode-map (kbd "? 9") (decide-roll-dice-fun 1 "9"))
+(define-key decide-mode-map (kbd "? 1 0") (decide-roll-dice-fun 1 "10"))
+(define-key decide-mode-map (kbd "? 1 2") (decide-roll-dice-fun 1 "12"))
+(define-key decide-mode-map (kbd "? 2 0") (decide-roll-dice-fun 1 "20"))
+(define-key decide-mode-map (kbd "? %") (decide-roll-dice-fun 1 "100"))
+(define-key decide-mode-map (kbd "? f") (decide-roll-dice-fun 4 "F"))
+(define-key decide-mode-map (kbd "? a") (decide-roll-dice-fun 1 "A"))
+(define-key decide-mode-map (kbd "? A") (decide-roll-dice-fun 2 "A"))
 
 (define-key decide-mode-map (kbd "? r") 'decide-random-range)
 
