@@ -1,8 +1,15 @@
-;;; decide.el --- rolling dice and other random things
-;; Copyright 2016, 2017, 2019, 2021 Pelle Nilsson et al
+;;; decide.el --- Rolling dice and other random things -*- lexical-binding: t; -*-
+;; Copyright 2016, 2017, 2019, 2021 Pelle Nilsson et al, 2022 Luke Miller
 ;;
-;; Author: Pelle Nilsson <perni@lysator.liu.se>
-;; Version: 0.8
+;; Author: Pelle Nilsson <perni@lysator.liu.se>, Luke Miller <https://github.com/govtissuejoe>
+;; Maintainer: Luke Miller <luke.k.miller@pm.me>
+;; Version: 0.8.1
+;;
+;; Keywords: games rpg
+;; Homepage: https://github.com/govtissuejoe/decide-mode
+;; Package-Requires: ((emacs "25.1"))
+;;
+;; This file is not part of GNU Emacs.
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -171,16 +178,17 @@
             (4 "4")
             (4 "4")
             (5 "5"))))
-  "Alist specifying custom dice for decide-roll-dice. Keys are
-  the names used when rolling dice. They are case insensitive, so
-  avoid using names that only differ in case (e.g. Hi and HI).")
+  "Alist specifying custom dice for decide-roll-dice.
+
+Keys are the names used when rolling dice. They are case
+  insensitive, so avoid using names that only differ in
+  case (e.g. Hi and HI).")
 
 (defvar decide-default-dice-faces 6
-  "The default faces of dice to use if left out of
-  a dice specification, for instance if rolling 3d.
-  Can be a number or a string matching one of the
-  custom names in decide-custom-dice."
-  )
+  "The default faces of dice to use if left out of a dice spec.
+
+For instance if rolling 3d. Can be a number or a string matching
+  one of the custom names in decide-custom-dice.")
 
 (setq decide-for-me-dice
       (let ((ya "YES+")
@@ -188,12 +196,10 @@
             (yb "YES-")
             (nb "NO-")
             (n "NO")
-            (na "NO+")
-            )
+            (na "NO+"))
         (list (cons :likely(list ya ya y yb nb n))
               (cons :normal (list ya y yb nb n na))
-              (cons :unlikely (list y yb nb n na na)
-                    ))))
+              (cons :unlikely (list y yb nb n na na)))))
 
 (require 'cl-lib)
 
@@ -357,7 +363,7 @@
 
 
 (defun decide-visible-tables ()
-  (remove-if
+  (cl-remove-if
    (lambda (x)
      (string= "-" (substring (car x) 0 1)))
    decide-tables))
@@ -376,18 +382,17 @@
    ((string-match "^\s*#" line) nil)
    ((string-match "^\\([0-9]+\\),\\(.*\\)" line)
     (cons (match-string 2 line)
-          (string-to-number (match-string 1 line))
-          ))
+          (string-to-number (match-string 1 line))))
    (t line)))
 
 (defun decide-table-parse-lines (lines)
-  (remove-if-not
+  (cl-remove-if-not
    (lambda (x) (or (consp x) (stringp x)))
    (mapcar 'decide-table-parse-line lines)))
 
 (defun decide-table-read-buffer ()
   (save-excursion
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (decide-table-parse-lines (split-string (buffer-string) "\n" t))))
 
 (defun decide-push-table (filename lines)
@@ -412,8 +417,7 @@
 (defun decide-table-load-dir (dir)
   (interactive "D")
   (mapcar 'decide-table-load-file
-          (directory-files-recursively dir ""))
-  )
+          (directory-files-recursively dir "")))
 
 (defun decide-whereto-compass-4 ()
   (interactive)
@@ -464,10 +468,10 @@
   (let ((res (+ 1 (random faces))))
     (list res (format "%d" res))))
 
-(defun decide-roll-die (faces)
-  (if (and (stringp faces) (= (length faces) 0))
-      (decide-roll-die-nonempty decide-default-dice-faces)
-    (decide-roll-die-nonempty faces)))
+;; (defun decide-roll-die (faces)
+;;   (if (and (stringp faces) (= (length faces) 0))
+;;       (decide-roll-die-nonempty decide-default-dice-faces)
+;;     (decide-roll-die-nonempty faces)))
 
 (defun decide-roll-die (faces)
   (cond ((stringp faces)
@@ -601,21 +605,17 @@
 (defun decide-find-last-ws ()
   (save-excursion
     (let ((p (search-backward-regexp "[\s\n(]")))
-      (if p (+ p 1) (point-min)))
-    )
-  )
+      (if p (+ p 1) (point-min)))))
 
 (defun decide-get-from-last-ws ()
-  (buffer-substring-no-properties (decide-find-last-ws) (point))
-)
+  (buffer-substring-no-properties (decide-find-last-ws) (point)))
 
 (defun decide-dwim-insert ()
   "Do what I mean with last word."
   (interactive)
   (let* ((s (decide-get-from-last-ws))
          (dice-spec (decide-make-dice-spec s))
-         (range-spec (decide-parse-range s))
-         )
+         (range-spec (decide-parse-range s)))
     (cond (dice-spec (progn
                        (delete-backward-char (length s))
                        (decide-roll-dice-insert dice-spec)))
